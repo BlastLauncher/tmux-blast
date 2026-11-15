@@ -59,8 +59,12 @@ done
 
 # tmux 3.2 has no `display-popup -e`, so the environment travels in the
 # command; a failed start would otherwise close the popup without a trace.
+# display-popup uses tmux's default shell, which may be fish or another shell
+# with different status-variable syntax. Run this POSIX command explicitly so
+# the fallback does not get parsed by the user's interactive shell.
 popup="export BLAST_TMUX_TARGET=$(quote "$target") PATH=$(quote "$PATH");"
 popup="$popup $blast_command --popup$extensions ||"
 popup="$popup tmux display-message -t $(quote "$pane") \"blast: the palette exited with status \$?\""
+popup="/bin/sh -c $(quote "$popup")"
 
 tmux display-popup -E -c "$client" -t "$pane" -w "$width" -h "$height" "$popup"
